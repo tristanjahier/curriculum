@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Providers\Filament\FilamentPanelProvider;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +16,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        if ($this->app->environment('local') && class_exists(\Filament\PanelProvider::class)) {
+            $this->app->register(FilamentPanelProvider::class);
+        }
     }
 
     /**
