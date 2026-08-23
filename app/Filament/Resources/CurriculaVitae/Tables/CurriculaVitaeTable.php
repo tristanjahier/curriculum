@@ -4,6 +4,7 @@ namespace App\Filament\Resources\CurriculaVitae\Tables;
 
 use App\Filament\Resources\CurriculaVitae\Actions\RemoveAsDefaultAction;
 use App\Filament\Resources\CurriculaVitae\Actions\SetAsDefaultAction;
+use App\Filament\Tables\Columns\StackColumn;
 use App\Models\CurriculumVitae;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -17,8 +18,6 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Contracts\Support\Htmlable;
-use Illuminate\Support\HtmlString;
 use Livewire\Component;
 
 class CurriculaVitaeTable
@@ -46,20 +45,20 @@ class CurriculaVitaeTable
                     ->sortable(['first_name', 'last_name'])
                     ->limit(30),
 
-                TextColumn::make('headline')
-                    ->label('Headline & Summary')
+                StackColumn::make('headline_and_summary')
+                    ->stack([
+                        TextColumn::make('headline')
+                            ->placeholder('∅')
+                            ->wrap()
+                            ->lineClamp(1),
+                        TextColumn::make('summary')
+                            ->placeholder('∅')
+                            ->wrap()
+                            ->lineClamp(2),
+                    ])
                     ->searchable(['headline', 'summary'])
-                    ->wrap()->lineClamp(2)
-                    ->grow()
-                    ->state(fn (CurriculumVitae $record) => $record->headline ?? new HtmlString('<p class="fi-ta-placeholder">∅</p>')) // Dirty hack to show summary even when headline is null.
-                    ->description(fn (CurriculumVitae $record): Htmlable => filled($record->summary)
-                        // Replicate lineClamp(2) on the description, which Filament does not support.
-                        ? new HtmlString(
-                            '<span style="display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;">'
-                            .e($record->summary)
-                            .'</span>')
-                        : new HtmlString('∅')
-                    ),
+                    ->sortable(['headline'])
+                    ->grow(),
 
                 TextColumn::make('published_at')
                     ->dateTime()
