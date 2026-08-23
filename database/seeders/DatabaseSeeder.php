@@ -16,10 +16,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin@localhost',
-            'password' => Hash::make('12345678'),
+        if (User::where('email', 'admin@localhost')->doesntExist()) {
+            User::factory()->create([
+                'name' => 'Admin',
+                'email' => 'admin@localhost',
+                'password' => Hash::make('12345678'),
+            ]);
+        }
+
+        $this->call([
+            PersonSeeder::class,
+            CurriculumVitaeSeeder::class,
         ]);
     }
 }

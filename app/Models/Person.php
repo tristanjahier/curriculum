@@ -1,0 +1,49 @@
+<?php
+
+namespace App\Models;
+
+use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Date;
+
+/**
+ * @property-read string $full_name
+ * @property-read CarbonImmutable|null $born_at
+ */
+class Person extends Model
+{
+    protected $guarded = [];
+
+    /**
+     * @return HasMany<CurriculumVitae, $this>
+     */
+    public function curriculaVitae(): HasMany
+    {
+        return $this->hasMany(CurriculumVitae::class);
+    }
+
+    /**
+     * @return Attribute<non-falsy-string, never>
+     */
+    protected function fullName(): Attribute
+    {
+        return Attribute::get(fn () => $this->first_name.' '.$this->last_name);
+    }
+
+    /**
+     * @return Attribute<CarbonImmutable|null, never>
+     */
+    protected function bornAt(): Attribute
+    {
+        // @phpstan-ignore return.type (false positive)
+        return Attribute::get(function ($value, array $attributes): ?CarbonImmutable {
+            if (blank($attributes['birth_datetime'] ?? null) || blank($attributes['birth_timezone'] ?? null)) {
+                return null;
+            }
+
+            return Date::make($attributes['birth_datetime'], $attributes['birth_timezone']);
+        });
+    }
+}
