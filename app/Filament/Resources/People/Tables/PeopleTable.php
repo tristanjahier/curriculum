@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\People\Tables;
 
+use App\Filament\Tables\Columns\StackColumn;
 use App\Models\Person;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -9,6 +10,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -42,15 +44,20 @@ class PeopleTable
                     ->limit(30)
                     ->placeholder('∅'),
 
-                TextColumn::make('phone')
-                    ->searchable()
-                    ->limit(30)
-                    ->placeholder('∅'),
+                StackColumn::make('contact_details')
+                    ->label('Contact Details')
+                    ->stack([
+                        TextColumn::make('phone')
+                            ->limit(30)
+                            ->icon(Heroicon::Phone)
+                            ->placeholder('∅'),
 
-                TextColumn::make('email')
-                    ->searchable()
-                    ->limit(30)
-                    ->placeholder('∅'),
+                        TextColumn::make('email')
+                            ->limit(30)
+                            ->icon(Heroicon::Envelope)
+                            ->placeholder('∅'),
+                    ])
+                    ->searchable(['phone', 'email']),
 
                 TextColumn::make('created_at')
                     ->dateTime()
