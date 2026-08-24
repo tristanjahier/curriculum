@@ -14,13 +14,18 @@ jobs:
   ci:
     runs-on: ubuntu-latest
 
+    env:
+      DB_DATABASE: curriculum_testing
+      DB_USERNAME: curriculum
+      DB_PASSWORD: password
+
     services:
       postgres:
         image: postgres:18
         env:
-          POSTGRES_USER: curriculum
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: curriculum_testing
+          POSTGRES_USER: ${{ env.DB_USERNAME }}
+          POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
+          POSTGRES_DB: ${{ env.DB_DATABASE }}
         ports:
           - 5432:5432
         options: >-
