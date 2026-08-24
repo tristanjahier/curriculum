@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - ci/setup-postgres
   pull_request:
 
 permissions:
