@@ -13,6 +13,7 @@ class HomeController extends Controller
     {
         $defaultCv = CurriculumVitae::findDefault();
 
+        // Last-resort safeguard for a state that the database disallows: "a default CV that is not published".
         if (isset($defaultCv) && ! $defaultCv->isPublished()) {
             $defaultCv = null;
         }

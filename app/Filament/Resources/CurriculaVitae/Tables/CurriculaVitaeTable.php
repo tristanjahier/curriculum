@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\CurriculaVitae\Tables;
 
+use App\Filament\Resources\CurriculaVitae\Actions\PublishAction;
 use App\Filament\Resources\CurriculaVitae\Actions\RemoveAsDefaultAction;
 use App\Filament\Resources\CurriculaVitae\Actions\SetAsDefaultAction;
+use App\Filament\Resources\CurriculaVitae\Actions\UnpublishAction;
 use App\Filament\Tables\Columns\StackColumn;
 use App\Models\CurriculumVitae;
 use Filament\Actions\ActionGroup;
@@ -84,6 +86,8 @@ class CurriculaVitaeTable
                 ActionGroup::make([
                     SetAsDefaultAction::make(),
                     RemoveAsDefaultAction::make(),
+                    PublishAction::make(),
+                    UnpublishAction::make(),
                     DeleteAction::make()
                         ->after(fn (Component $livewire) => $livewire->dispatch(
                             'default-cv-updated',

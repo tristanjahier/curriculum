@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\CurriculaVitae\Schemas;
 
 use App\Models\Person;
-use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -53,8 +52,6 @@ class CurriculumVitaeForm
                 Toggle::make('show_residence'),
                 Toggle::make('show_phone'),
                 Toggle::make('show_email'),
-
-                DateTimePicker::make('published_at'),
             ]);
     }
 }

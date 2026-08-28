@@ -20,6 +20,14 @@ class SetAsDefaultAction extends Action
         parent::setUp();
 
         $this->hidden(fn (CurriculumVitae $record) => $record->is_default);
+        $this->disabled(fn (CurriculumVitae $record) => ! $record->isPublished());
+        $this->tooltip(fn (CurriculumVitae $record) => ! $record->isPublished()
+            ? 'Cannot set an unpublished CV as the default!'
+            : null);
+        $this->extraAttributes(fn (CurriculumVitae $record) => $record->isPublished()
+            ? []
+            : ['style' => 'cursor: not-allowed']);
+
         $this->icon(Heroicon::BookmarkSquare);
         $this->color(Color::Violet);
         $this->requiresConfirmation();

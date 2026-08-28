@@ -36,24 +36,6 @@ describe('Inertia prop defaultCv', function () {
         $response->assertInertia(fn (AssertableInertia $page) => $page->component('Home')->whereNotNull('defaultCv'));
     });
 
-    test('is null when the default CV is unpublished', function () {
-        // This scenario MUST never happen. This test is for the safe guard.
-        CurriculumVitae::factory()->asDefault()->unpublished()->create();
-
-        $response = $this->get(route('home'));
-
-        $response->assertInertia(fn (AssertableInertia $page) => $page->component('Home')->where('defaultCv', null));
-    });
-
-    test('is null when the default CV is not yet published', function () {
-        // This scenario MUST never happen. This test is for the safe guard.
-        CurriculumVitae::factory()->asDefault()->publishedInFuture()->create();
-
-        $response = $this->get(route('home'));
-
-        $response->assertInertia(fn (AssertableInertia $page) => $page->component('Home')->where('defaultCv', null));
-    });
-
     test('exposes strictly its public properties', function () {
         $cv = CurriculumVitae::factory()->asDefault()->published()->create();
 

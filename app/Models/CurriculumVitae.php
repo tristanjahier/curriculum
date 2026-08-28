@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
+use RuntimeException;
 
 class CurriculumVitae extends Model
 {
@@ -58,6 +59,10 @@ class CurriculumVitae extends Model
 
     public function setAsDefault(): void
     {
+        if (! $this->isPublished()) {
+            throw new RuntimeException('An unpublished CV cannot be set as the default.');
+        }
+
         DB::transaction(function () {
             // Default CV uniqueness is constrained by the database.
             $currentDefaultCv = static::query()->default()->lockForUpdate()->first();
@@ -77,6 +82,17 @@ class CurriculumVitae extends Model
     public function removeAsDefault(): void
     {
         $this->forceFill(['is_default' => false])->save();
+    }
+
+    public function publish(): void
+    {
+        $this->update(['published_at' => now()]);
+    }
+
+    public function unpublish(): void
+    {
+        // Set is_default to false because an unpublished CV cannot be the default.
+        $this->forceFill(['published_at' => null, 'is_default' => false])->save();
     }
 
     public static function findDefault(): ?static
