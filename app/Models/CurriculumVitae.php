@@ -2,17 +2,24 @@
 
 namespace App\Models;
 
+use Database\Factories\CurriculumVitaeFactory;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
 
 class CurriculumVitae extends Model
 {
+    /** @use HasFactory<CurriculumVitaeFactory> */
+    use HasFactory;
+
     protected $table = 'curricula_vitae';
 
     protected $guarded = ['is_default'];
+
+    protected $with = ['person'];
 
     protected function casts(): array
     {
@@ -42,6 +49,11 @@ class CurriculumVitae extends Model
     protected function default(Builder $query): void
     {
         $query->where('is_default', true);
+    }
+
+    public function isPublished(): bool
+    {
+        return $this->published_at !== null && $this->published_at->isPast();
     }
 
     public function setAsDefault(): void
