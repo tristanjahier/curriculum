@@ -54,7 +54,18 @@ class CurriculumVitae extends Model
 
     public function isPublished(): bool
     {
-        return $this->published_at !== null && $this->published_at->isPast();
+        return $this->published_at !== null && $this->published_at->isNowOrPast();
+    }
+
+    public function publish(): void
+    {
+        $this->update(['published_at' => now()]);
+    }
+
+    public function unpublish(): void
+    {
+        // Set is_default to false because an unpublished CV cannot be the default.
+        $this->forceFill(['published_at' => null, 'is_default' => false])->save();
     }
 
     public function setAsDefault(): void
@@ -82,17 +93,6 @@ class CurriculumVitae extends Model
     public function removeAsDefault(): void
     {
         $this->forceFill(['is_default' => false])->save();
-    }
-
-    public function publish(): void
-    {
-        $this->update(['published_at' => now()]);
-    }
-
-    public function unpublish(): void
-    {
-        // Set is_default to false because an unpublished CV cannot be the default.
-        $this->forceFill(['published_at' => null, 'is_default' => false])->save();
     }
 
     public static function findDefault(): ?static

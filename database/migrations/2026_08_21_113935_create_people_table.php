@@ -25,6 +25,7 @@ return new class extends Migration
         });
 
         // Add an index to optimize ordering by the absolute birth timestamp.
+        // It also serves as a constraint to validate birth_timezone.
         DB::statement('CREATE INDEX people_born_at_index ON people ((birth_datetime AT TIME ZONE birth_timezone))');
     }
 
