@@ -26,7 +26,7 @@ test('age accessor returns the age (truncated to whole years) taking into accoun
 
     $person = Person::factory()->make([
         'birth_datetime' => $birth->toDateTimeString(),
-        'birth_timezone' => $birth->getTimezone()->getName()
+        'birth_timezone' => $birth->getTimezone()->getName(),
     ]);
 
     // Application timezone is UTC, so America/New_York is 4 hours behind in face value.
