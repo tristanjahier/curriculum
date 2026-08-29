@@ -64,8 +64,9 @@ test('setAsDefault() sets the CV as default', function () {
 
     $cv->setAsDefault();
 
-    $cv = $cv->fresh();
     expect($cv->is_default)->toBeTrue();
+    expect($cv->isDirty('is_default'))->toBeFalse();
+    expect($cv->fresh()->is_default)->toBeTrue();
 });
 
 test('setAsDefault() removes the former default CV as default', function () {

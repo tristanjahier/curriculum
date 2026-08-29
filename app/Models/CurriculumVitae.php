@@ -70,24 +70,38 @@ class CurriculumVitae extends Model
 
     public function setAsDefault(): void
     {
+        $throwUnpublishedException = fn () => throw new RuntimeException('An unpublished CV cannot be set as the default.');
+
         if (! $this->isPublished()) {
-            throw new RuntimeException('An unpublished CV cannot be set as the default.');
+            $throwUnpublishedException();
         }
 
-        DB::transaction(function () {
-            // Default CV uniqueness is constrained by the database.
-            $currentDefaultCv = static::query()->default()->lockForUpdate()->first();
+        $updated = DB::transaction(function () use ($throwUnpublishedException) {
+            // Acquire an advisory lock (transaction-scoped) to prevent a race condition with another call
+            // to `setAsDefault()`. The lock key is arbitrary and was picked randomly.
+            // https://www.postgresql.org/docs/current/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS
+            DB::statement('SELECT pg_advisory_xact_lock(?)', [65346117]);
 
-            if (isset($currentDefaultCv)) {
-                if ($currentDefaultCv->is($this)) {
-                    return;
-                }
+            // $this may be stale and we need to ensure the CV is still published before running the next queries.
+            // `lockForUpdate()` ensures that $fresh will not be altered by a concurrent request for the duration
+            // of the transaction.
+            $fresh = static::query()->lockForUpdate()->whereKey($this->getKey())->firstOrFail();
 
-                $currentDefaultCv->removeAsDefault();
+            if (! $fresh->isPublished()) {
+                $throwUnpublishedException();
             }
 
-            $this->forceFill(['is_default' => true])->save();
+            static::query()->default()->whereKeyNot($fresh->getKey())->update(['is_default' => false]);
+
+            $fresh->forceFill(['is_default' => true])->save();
+
+            return $fresh;
         });
+
+        // Synchronize $this with its up-to-date counterpart.
+        $this->is_default = $updated->is_default;
+        $this->updated_at = $updated->updated_at;
+        $this->syncOriginalAttributes(['is_default', 'updated_at']);
     }
 
     public function removeAsDefault(): void
