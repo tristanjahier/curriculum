@@ -65,7 +65,7 @@ class CurriculumVitae extends Model
     public function unpublish(): void
     {
         // Set is_default to false because an unpublished CV cannot be the default.
-        $this->forceFill(['published_at' => null, 'is_default' => false])->save();
+        $this->refresh()->forceFill(['published_at' => null, 'is_default' => false])->save();
     }
 
     public function setAsDefault(): void
@@ -106,7 +106,7 @@ class CurriculumVitae extends Model
 
     public function removeAsDefault(): void
     {
-        $this->forceFill(['is_default' => false])->save();
+        $this->refresh()->forceFill(['is_default' => false])->save();
     }
 
     public static function findDefault(): ?static

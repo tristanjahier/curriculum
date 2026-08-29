@@ -57,6 +57,18 @@ test('unpublish() also removes the CV as default', function () {
     expect($cv->is_default)->toBeFalse();
 });
 
+test('unpublish() clears is_default even if the instance was loaded before it became default', function () {
+    $cv = CurriculumVitae::factory()->published()->asDefault(false)->create();
+    $concurrent = CurriculumVitae::find($cv->getKey());
+    $concurrent->setAsDefault(); // $cv becomes stale
+
+    $cv->unpublish();
+
+    $cv = $cv->fresh();
+    expect($cv->is_default)->toBeFalse();
+    expect($cv->published_at)->toBeNull();
+});
+
 test('setAsDefault() sets the CV as default', function () {
     $cv = CurriculumVitae::factory()->published()->asDefault(false)->create();
 
@@ -88,6 +100,18 @@ test('setAsDefault() throws if the CV is unpublished', function () {
         ->toThrow(RuntimeException::class, 'An unpublished CV cannot be set as the default.');
 });
 
+test('setAsDefault() sets the CV as default even if the instance in-memory state says it already is', function () {
+    $cv = CurriculumVitae::factory()->published()->asDefault(true)->create();
+    $otherCv = CurriculumVitae::factory()->published()->asDefault(false)->create();
+
+    $otherCv->setAsDefault(); // $cv becomes stale
+    $cv->setAsDefault();
+
+    $realDefault = CurriculumVitae::findDefault();
+    expect($realDefault)->not->toBeNull();
+    expect($cv->is($realDefault))->toBeTrue();
+});
+
 test('removeAsDefault() removes the CV as default', function () {
     $cv = CurriculumVitae::factory()->published()->asDefault()->create();
 
@@ -97,6 +121,16 @@ test('removeAsDefault() removes the CV as default', function () {
 
     $cv = $cv->fresh();
     expect($cv->is_default)->toBeFalse();
+});
+
+test('removeAsDefault() clears is_default even if the instance was loaded before it became default', function () {
+    $cv = CurriculumVitae::factory()->published()->asDefault(false)->create();
+    $concurrent = CurriculumVitae::find($cv->getKey());
+    $concurrent->setAsDefault(); // $cv becomes stale
+
+    $cv->removeAsDefault();
+
+    expect($cv->fresh()->is_default)->toBeFalse();
 });
 
 test('findDefault() returns the default CV or null if none', function () {
