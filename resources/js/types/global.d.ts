@@ -1,3 +1,4 @@
+import type { Appearance } from '@/lib/appearance';
 import type { Auth } from '@/types/auth';
 
 // Extend ImportMeta interface for Vite...
@@ -19,6 +20,7 @@ declare module '@inertiajs/core' {
             name: string;
             auth: Auth;
             sidebarOpen: boolean;
+            appearance: Appearance;
             [key: string]: unknown;
         };
     }
