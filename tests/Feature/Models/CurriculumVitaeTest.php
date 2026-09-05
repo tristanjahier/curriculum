@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\CurriculumVitae;
+use App\Models\Experience;
+use App\Models\Person;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 
@@ -145,4 +147,34 @@ test('findDefault() returns the default CV or null if none', function () {
     $result->removeAsDefault();
 
     expect(CurriculumVitae::findDefault())->toBeNull();
+});
+
+test('experiences() rejects an experience belonging to another person', function () {
+    $cv = CurriculumVitae::factory()->create();
+    $foreignPerson = Experience::factory()->create();
+
+    expect(fn () => $cv->experiences()->attach($foreignPerson))
+        ->toThrow(RuntimeException::class, 'A CV cannot hold an experience belonging to another person.');
+});
+
+test('a CV holding experiences cannot be moved to another person', function () {
+    $person = Person::factory()->create();
+    $cv = CurriculumVitae::factory()->for($person)->create();
+    $cv->experiences()->attach(Experience::factory()->for($person)->create());
+
+    $cv->person_id = Person::factory()->create()->getKey();
+
+    expect(fn () => $cv->save())
+        ->toThrow(RuntimeException::class, 'A CV holding experiences cannot be moved to another person.');
+
+    expect($cv->fresh()->person_id)->toBe($person->getKey());
+});
+
+test('a CV holding no experience can be moved to another person', function () {
+    $cv = CurriculumVitae::factory()->create();
+    $otherPerson = Person::factory()->create();
+
+    $cv->update(['person_id' => $otherPerson->getKey()]);
+
+    expect($cv->fresh()->person_id)->toBe($otherPerson->getKey());
 });

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\CurriculaVitae\Schemas;
 
+use App\Models\CurriculumVitae;
 use App\Models\Person;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -38,7 +39,11 @@ class CurriculumVitaeForm
                     ->required()
                     ->relationship(name: 'person')
                     ->getOptionLabelFromRecordUsing(fn (Person $p) => $p->full_name)
-                    ->searchable(['first_name', 'last_name'])->preload(),
+                    ->searchable(['first_name', 'last_name'])->preload()
+                    ->disabled(fn (?CurriculumVitae $record): bool => $record?->experiences()->exists() ?? false)
+                    ->helperText(fn (?CurriculumVitae $record): ?string => $record?->experiences()->exists() ?? false
+                        ? 'Detach every experience from this CV before moving it to another person.'
+                        : null),
 
                 TextInput::make('headline')
                     ->maxLength(100),

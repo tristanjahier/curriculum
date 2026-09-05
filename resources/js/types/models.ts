@@ -8,9 +8,20 @@ export interface Person {
     email?: string | null;
 }
 
+export interface Experience {
+    id: number;
+    title: string;
+    description: string | null;
+    company: string | null;
+    location: string | null;
+    started_at: string;
+    ended_at: string | null;
+}
+
 export interface CurriculumVitae {
     slug: string;
     person: Person;
     headline: string | null;
     summary: string | null;
+    experiences: Experience[];
 }

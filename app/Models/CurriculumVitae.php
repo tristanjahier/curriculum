@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
@@ -20,7 +21,7 @@ class CurriculumVitae extends Model
 
     protected $guarded = ['is_default'];
 
-    protected $with = ['person'];
+    protected $with = ['person', 'experiences'];
 
     protected function casts(): array
     {
@@ -35,12 +36,29 @@ class CurriculumVitae extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::updating(function (self $cv): void {
+            if ($cv->isDirty('person_id') && $cv->experiences()->exists()) {
+                throw new RuntimeException('A CV holding experiences cannot be moved to another person.');
+            }
+        });
+    }
+
     /**
      * @return BelongsTo<Person, $this>
      */
     public function person(): BelongsTo
     {
         return $this->belongsTo(Person::class);
+    }
+
+    /**
+     * @return BelongsToMany<Experience, $this, CurriculumVitaeExperience>
+     */
+    public function experiences(): BelongsToMany
+    {
+        return $this->belongsToMany(Experience::class, CurriculumVitaeExperience::class)->withTimestamps();
     }
 
     /**

@@ -1,11 +1,17 @@
 <?php
 
 use App\Models\CurriculumVitae;
+use App\Models\Experience;
+use App\Models\Person;
 use Inertia\Testing\AssertableInertia;
 
 describe('show', function () {
     test('renders a published CV with exactly its public properties', function () {
-        $cv = CurriculumVitae::factory()->published()->create();
+        $cv = CurriculumVitae::factory()
+            ->published()
+            ->recycle(Person::factory()->create())
+            ->has(Experience::factory()->count(3))
+            ->create();
 
         $response = $this->get(route('cv.show', $cv));
 
@@ -32,6 +38,15 @@ describe('show', function () {
                         ->when($cv->show_email,
                             fn () => $page->where('email', $cv->person->email),
                             fn () => $page->missing('email'))
+                    )
+                    ->has('experiences', $cv->experiences->count(), fn (AssertableInertia $page) => $page
+                        ->has('id')
+                        ->has('title')
+                        ->has('description')
+                        ->has('company')
+                        ->has('location')
+                        ->has('started_at')
+                        ->has('ended_at')
                     )
                 )
             );

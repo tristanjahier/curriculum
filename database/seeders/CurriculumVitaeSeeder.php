@@ -48,5 +48,23 @@ class CurriculumVitaeSeeder extends Seeder
                 'published_at' => null,
             ]
         );
+
+        $drustan = Person::where(['first_name' => 'Drustan', 'last_name' => 'Jaegger'])->firstOrFail();
+
+        CurriculumVitae::firstOrCreate(
+            [
+                'name' => 'Senior Spy',
+                'slug' => 'senior-spy',
+            ], [
+                'person_id' => $drustan->id,
+                'show_photo' => false,
+                'show_age' => false,
+                'show_residence' => false,
+                'show_phone' => false,
+                'show_email' => false,
+                'headline' => 'Senior Spy with 20y+ experience',
+                'published_at' => Date::make('2026-09-02 21:19'),
+            ]
+        );
     }
 }

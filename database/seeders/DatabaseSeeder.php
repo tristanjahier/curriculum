@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             PersonSeeder::class,
             CurriculumVitaeSeeder::class,
+            ExperienceSeeder::class,
+            CurriculumVitaeExperienceSeeder::class,
         ]);
     }
 }

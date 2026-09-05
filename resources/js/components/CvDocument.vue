@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { CurriculumVitae } from '@/types/models';
+import CvExperience from './CvExperience.vue';
 defineProps<{ cv: CurriculumVitae }>();
 </script>
 
@@ -27,6 +28,22 @@ defineProps<{ cv: CurriculumVitae }>();
             </div>
         </div>
 
-        <div id="cv-summary" v-if="cv.summary != null">{{ cv.summary }}</div>
+        <div id="cv-summary" v-if="cv.summary != null" class="my-4">
+            {{ cv.summary }}
+        </div>
+
+        <div
+            id="cv-experience-container"
+            class="my-4"
+            v-if="cv.experiences.length > 0"
+        >
+            <h1>Experience</h1>
+            <CvExperience
+                v-for="experience in cv.experiences"
+                :key="experience.id"
+                :experience
+                class="my-4"
+            />
+        </div>
     </div>
 </template>
