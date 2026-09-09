@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('curriculum_vitae_id')->index()->references('id')->on('curricula_vitae')->cascadeOnDelete();
             $table->foreignId('education_id')->index()->references('id')->on('education')->cascadeOnDelete();
             $table->timestamps();
-            $table->unique(['curriculum_vitae_id', 'education_id']);
+            $table->unique(['curriculum_vitae_id', 'education_id'], name: 'curriculum_vitae_education_unique');
         });
     }
 
