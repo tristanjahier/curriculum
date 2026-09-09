@@ -40,9 +40,9 @@ class CurriculumVitaeForm
                     ->relationship(name: 'person')
                     ->getOptionLabelFromRecordUsing(fn (Person $p) => $p->full_name)
                     ->searchable(['first_name', 'last_name'])->preload()
-                    ->disabled(fn (?CurriculumVitae $record): bool => $record?->experiences()->exists() ?? false)
-                    ->helperText(fn (?CurriculumVitae $record): ?string => $record?->experiences()->exists() ?? false
-                        ? 'Detach every experience from this CV before moving it to another person.'
+                    ->disabled(fn (?CurriculumVitae $record): bool => $record?->holdsEducationOrExperience() ?? false)
+                    ->helperText(fn (?CurriculumVitae $record): ?string => $record?->holdsEducationOrExperience() ?? false
+                        ? 'Detach all education and experience entries from this CV before moving it to another person.'
                         : null),
 
                 TextInput::make('headline')

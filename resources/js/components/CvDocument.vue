@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { CurriculumVitae } from '@/types/models';
+import CvEducation from './CvEducation.vue';
 import CvExperience from './CvExperience.vue';
 defineProps<{ cv: CurriculumVitae }>();
 </script>
@@ -42,6 +43,20 @@ defineProps<{ cv: CurriculumVitae }>();
                 v-for="experience in cv.experiences"
                 :key="experience.id"
                 :experience
+                class="my-4"
+            />
+        </div>
+
+        <div
+            id="cv-education-container"
+            class="my-4"
+            v-if="cv.education.length > 0"
+        >
+            <h1>Education</h1>
+            <CvEducation
+                v-for="education in cv.education"
+                :key="education.id"
+                :education
                 class="my-4"
             />
         </div>

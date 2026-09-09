@@ -8,6 +8,16 @@ export interface Person {
     email?: string | null;
 }
 
+export interface Education {
+    id: number;
+    title: string;
+    description: string | null;
+    institution: string | null;
+    location: string | null;
+    started_at: string;
+    ended_at: string | null;
+}
+
 export interface Experience {
     id: number;
     title: string;
@@ -23,5 +33,6 @@ export interface CurriculumVitae {
     person: Person;
     headline: string | null;
     summary: string | null;
+    education: Education[];
     experiences: Experience[];
 }

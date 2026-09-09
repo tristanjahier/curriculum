@@ -36,6 +36,13 @@ class CurriculumVitaeResource extends JsonResource
                 'phone' => $this->when($this->show_phone, fn () => $this->person->phone),
                 'email' => $this->when($this->show_email, fn () => $this->person->email),
             ],
+            'education' => EducationResource::collection(
+                $this->education->sortBy([
+                    ['is_ongoing', 'desc'],
+                    ['ended_at', 'desc'],
+                    ['started_at', 'desc'],
+                ])->values()
+            ),
             'experiences' => ExperienceResource::collection(
                 $this->experiences->sortBy([
                     ['is_ongoing', 'desc'],

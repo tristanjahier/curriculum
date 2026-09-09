@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\CurriculumVitae;
+use App\Models\Education;
 use App\Models\Experience;
 use App\Models\Person;
 use Carbon\CarbonImmutable;
@@ -149,11 +150,32 @@ test('findDefault() returns the default CV or null if none', function () {
     expect(CurriculumVitae::findDefault())->toBeNull();
 });
 
+test('education() rejects an education entry belonging to another person', function () {
+    $cv = CurriculumVitae::factory()->create();
+    $foreign = Education::factory()->create();
+
+    expect(fn () => $cv->education()->attach($foreign))
+        ->toThrow(RuntimeException::class, 'A CV cannot hold an education entry belonging to another person.');
+});
+
+test('a CV holding education cannot be moved to another person', function () {
+    $person = Person::factory()->create();
+    $cv = CurriculumVitae::factory()->for($person)->create();
+    $cv->education()->attach(Education::factory()->for($person)->create());
+
+    $cv->person_id = Person::factory()->create()->getKey();
+
+    expect(fn () => $cv->save())
+        ->toThrow(RuntimeException::class, 'A CV holding education or experience entries cannot be moved to another person.');
+
+    expect($cv->fresh()->person_id)->toBe($person->getKey());
+});
+
 test('experiences() rejects an experience belonging to another person', function () {
     $cv = CurriculumVitae::factory()->create();
-    $foreignPerson = Experience::factory()->create();
+    $foreign = Experience::factory()->create();
 
-    expect(fn () => $cv->experiences()->attach($foreignPerson))
+    expect(fn () => $cv->experiences()->attach($foreign))
         ->toThrow(RuntimeException::class, 'A CV cannot hold an experience belonging to another person.');
 });
 
@@ -165,12 +187,12 @@ test('a CV holding experiences cannot be moved to another person', function () {
     $cv->person_id = Person::factory()->create()->getKey();
 
     expect(fn () => $cv->save())
-        ->toThrow(RuntimeException::class, 'A CV holding experiences cannot be moved to another person.');
+        ->toThrow(RuntimeException::class, 'A CV holding education or experience entries cannot be moved to another person.');
 
     expect($cv->fresh()->person_id)->toBe($person->getKey());
 });
 
-test('a CV holding no experience can be moved to another person', function () {
+test('a CV holding no education nor experience can be moved to another person', function () {
     $cv = CurriculumVitae::factory()->create();
     $otherPerson = Person::factory()->create();
 

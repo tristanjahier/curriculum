@@ -21,7 +21,7 @@ class CurriculumVitae extends Model
 
     protected $guarded = ['is_default'];
 
-    protected $with = ['person', 'experiences'];
+    protected $with = ['person', 'education', 'experiences'];
 
     protected function casts(): array
     {
@@ -39,8 +39,8 @@ class CurriculumVitae extends Model
     protected static function booted(): void
     {
         static::updating(function (self $cv): void {
-            if ($cv->isDirty('person_id') && $cv->experiences()->exists()) {
-                throw new RuntimeException('A CV holding experiences cannot be moved to another person.');
+            if ($cv->isDirty('person_id') && $cv->holdsEducationOrExperience()) {
+                throw new RuntimeException('A CV holding education or experience entries cannot be moved to another person.');
             }
         });
     }
@@ -51,6 +51,14 @@ class CurriculumVitae extends Model
     public function person(): BelongsTo
     {
         return $this->belongsTo(Person::class);
+    }
+
+    /**
+     * @return BelongsToMany<Education, $this, CurriculumVitaeEducation>
+     */
+    public function education(): BelongsToMany
+    {
+        return $this->belongsToMany(Education::class, CurriculumVitaeEducation::class)->withTimestamps();
     }
 
     /**
@@ -125,6 +133,11 @@ class CurriculumVitae extends Model
     public function removeAsDefault(): void
     {
         $this->refresh()->forceFill(['is_default' => false])->save();
+    }
+
+    public function holdsEducationOrExperience(): bool
+    {
+        return $this->education()->exists() || $this->experiences()->exists();
     }
 
     public static function findDefault(): ?static

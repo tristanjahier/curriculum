@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\CurriculumVitae;
+use App\Models\Education;
 use App\Models\Experience;
 use App\Models\Person;
 use App\Models\User;
@@ -43,6 +44,7 @@ describe('Inertia prop defaultCv', function () {
             ->asDefault()
             ->published()
             ->recycle(Person::factory()->create())
+            ->has(Education::factory()->count(2))
             ->has(Experience::factory()->count(3))
             ->create();
 
@@ -70,6 +72,15 @@ describe('Inertia prop defaultCv', function () {
                     ->when($cv->show_email,
                         fn () => $page->where('email', $cv->person->email),
                         fn () => $page->missing('email'))
+                )
+                ->has('education', $cv->education->count(), fn (AssertableInertia $page) => $page
+                    ->has('id')
+                    ->has('title')
+                    ->has('description')
+                    ->has('institution')
+                    ->has('location')
+                    ->has('started_at')
+                    ->has('ended_at')
                 )
                 ->has('experiences', $cv->experiences->count(), fn (AssertableInertia $page) => $page
                     ->has('id')

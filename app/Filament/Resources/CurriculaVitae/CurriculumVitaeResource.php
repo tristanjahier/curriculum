@@ -52,6 +52,7 @@ class CurriculumVitaeResource extends Resource
     public static function getRelations(): array
     {
         return [
+            RelationManagers\EducationRelationManager::class,
             RelationManagers\ExperiencesRelationManager::class,
         ];
     }

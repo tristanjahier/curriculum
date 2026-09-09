@@ -20,6 +20,8 @@ class DatabaseSeeder extends Seeder
             CurriculumVitaeSeeder::class,
             ExperienceSeeder::class,
             CurriculumVitaeExperienceSeeder::class,
+            EducationSeeder::class,
+            CurriculumVitaeEducationSeeder::class,
         ]);
     }
 }

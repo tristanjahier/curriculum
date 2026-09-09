@@ -2,6 +2,7 @@
 
 use App\Http\Resources\CurriculumVitaeResource;
 use App\Models\CurriculumVitae;
+use App\Models\Education;
 use App\Models\Experience;
 use App\Models\Person;
 use Illuminate\Http\Request;
@@ -46,6 +47,10 @@ test('exposes strictly the public properties', function () {
         $expected['person']['email'] = $cv->person->email;
     }
 
+    // Assert only the presence of education. Their shape is tested in a dedicated test.
+    expect($serialized)->toHaveKey('education');
+    unset($serialized['education']);
+
     // Assert only the presence of experiences. Their shape is tested in a dedicated test.
     expect($serialized)->toHaveKey('experiences');
     unset($serialized['experiences']);
@@ -81,6 +86,27 @@ test('does not expose person.email when show_email is false', function () {
     $serialized = getSerializedCvResource($cv);
 
     expect($serialized)->not->toHaveKey('person.email');
+});
+
+test('sorts education entries properly', function () {
+    $cv = CurriculumVitae::factory()
+        ->recycle(Person::factory()->create())
+        ->hasAttached(Education::factory()->count(4)->sequence(
+            ['started_at' => '2015-02-01', 'ended_at' => '2025-07-01'],
+            ['started_at' => '2014-05-01', 'ended_at' => null],
+            ['started_at' => '2019-09-01', 'ended_at' => '2020-03-01'],
+            ['started_at' => '2016-10-01', 'ended_at' => null],
+        ))
+        ->create();
+
+    $serialized = getSerializedCvResource($cv);
+
+    expect($serialized)->toHaveKey('education');
+    expect($serialized['education'])->toHaveCount(4);
+    expect($serialized['education'][0])->toHaveKey('started_at', '2016-10')->toHaveKey('ended_at', null);
+    expect($serialized['education'][1])->toHaveKey('started_at', '2014-05')->toHaveKey('ended_at', null);
+    expect($serialized['education'][2])->toHaveKey('started_at', '2015-02')->toHaveKey('ended_at', '2025-07');
+    expect($serialized['education'][3])->toHaveKey('started_at', '2019-09')->toHaveKey('ended_at', '2020-03');
 });
 
 test('sorts experiences properly', function () {
