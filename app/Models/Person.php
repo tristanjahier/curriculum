@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Observers\PersonObserver;
 use Carbon\CarbonImmutable;
 use Database\Factories\PersonFactory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,6 +17,7 @@ use Illuminate\Support\Facades\Date;
  * @property-read ?CarbonImmutable $born_at
  * @property-read ?int $age
  */
+#[ObservedBy(PersonObserver::class)]
 class Person extends Model
 {
     /** @use HasFactory<PersonFactory> */

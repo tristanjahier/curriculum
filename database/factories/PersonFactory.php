@@ -25,6 +25,7 @@ class PersonFactory extends Factory
             'residence' => fake()->city(),
             'phone' => fake()->phoneNumber(),
             'email' => fake()->safeEmail(),
+            'photo' => fake()->optional()->lexify('??????????.jpg'),
         ];
     }
 }

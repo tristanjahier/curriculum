@@ -72,6 +72,9 @@ describe('Inertia prop defaultCv', function () {
                     ->when($cv->show_email,
                         fn () => $page->where('email', $cv->person->email),
                         fn () => $page->missing('email'))
+                    ->when($cv->show_photo,
+                        fn () => $page->has('photo'),
+                        fn () => $page->missing('photo'))
                 )
                 ->has('education', $cv->education->count(), fn (AssertableInertia $page) => $page
                     ->has('id')

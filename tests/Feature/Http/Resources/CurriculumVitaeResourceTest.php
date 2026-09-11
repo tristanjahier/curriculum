@@ -7,6 +7,7 @@ use App\Models\Experience;
 use App\Models\Person;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Storage;
 
 function getSerializedCvResource(CurriculumVitae $cv): array
 {
@@ -45,6 +46,12 @@ test('exposes strictly the public properties', function () {
 
     if ($cv->show_email) {
         $expected['person']['email'] = $cv->person->email;
+    }
+
+    if ($cv->show_photo) {
+        $expected['person']['photo'] = isset($cv->person->photo)
+            ? Storage::disk('public')->url('photos/'.$cv->person->photo)
+            : null;
     }
 
     // Assert only the presence of education. Their shape is tested in a dedicated test.
@@ -86,6 +93,13 @@ test('does not expose person.email when show_email is false', function () {
     $serialized = getSerializedCvResource($cv);
 
     expect($serialized)->not->toHaveKey('person.email');
+});
+
+test('does not expose person.photo when show_photo is false', function () {
+    $cv = CurriculumVitae::factory()->make(['show_photo' => false]);
+    $serialized = getSerializedCvResource($cv);
+
+    expect($serialized)->not->toHaveKey('person.photo');
 });
 
 test('sorts education entries properly', function () {

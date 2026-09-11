@@ -6,6 +6,7 @@ export interface Person {
     residence?: string | null;
     phone?: string | null;
     email?: string | null;
+    photo?: string | null;
 }
 
 export interface Education {

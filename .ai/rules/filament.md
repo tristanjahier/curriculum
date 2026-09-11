@@ -25,3 +25,14 @@ Same applies to `make:filament-relation-manager`, `make:filament-cluster` and `m
 2. `protected string $view` -> `filament.resources.curricula-vitae.widgets.<widget>`, and move the Blade file to the matching `resources/views/filament/resources/curricula-vitae/widgets/`.
 
 The generated view path doubles the segment (`curricula-vitae/curriculum-vitae-resource/widgets/...`). Nothing flags it — the view resolves either way — so it survives unless someone reads it. Fixing (1) without (2) leaves the class and its view disagreeing about where the resource lives.
+
+## Name closure parameters to match Filament's injections
+Filament's `evaluate()` resolves closure parameters by NAME first, then by type — and a typed parameter it cannot match falls through to `app()->make($class)` (vendor/filament/support/src/Concerns/EvaluatesClosures.php:85). So a `*Using()` callback whose parameter is named anything other than what Filament injects will try to build that class from the container.
+
+Copy the parameter names from the default registration in `setUp()` of the component you are overriding. For `BaseFileUpload`: `saveUploadedFileUsing` injects `file`; `getUploadedFileUsing` injects `file` and `storedFileNames`; `deleteUploadedFileUsing` injects `file`.
+
+Renaming `TemporaryUploadedFile $file` to `$f` made Filament call `app()->make(TemporaryUploadedFile::class)`, which cannot be constructed — the failure surfaced as "Allowed memory size exhausted" while rendering the error, not as a clear binding exception, and wrote a 137 MB log.
+
+A parameter typed as the component's own class (e.g. `BaseFileUpload $component`) resolves regardless of its name, because `evaluate()` returns `$this` for that type. That is why only the file parameters break.
+
+Also note `deleteUploadedFileUsing` is NOT registered by default: adding one opts into deleting the file the moment FilePond's remove button is clicked, before any save. Cleaning up replaced/removed files belongs in a model observer instead.

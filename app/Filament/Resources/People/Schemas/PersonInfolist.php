@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\People\Schemas;
 
+use App\Models\Person;
+use App\Support\PersonPhoto;
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 
@@ -38,6 +41,12 @@ class PersonInfolist
                 TextEntry::make('updated_at')
                     ->dateTime()
                     ->placeholder('∅'),
+
+                ImageEntry::make('photo')
+                    ->disk(PersonPhoto::DISK)
+                    ->state(fn (Person $record) => PersonPhoto::path($record->photo))
+                    ->placeholder('∅')
+                    ->alt(fn (Person $record) => 'Photograph of '.$record->full_name),
             ]);
     }
 }

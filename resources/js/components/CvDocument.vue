@@ -8,6 +8,12 @@ defineProps<{ cv: CurriculumVitae }>();
 <template>
     <div id="cv-document">
         <div id="cv-person" class="my-4">
+            <img
+                v-if="cv.person.photo != null"
+                :src="cv.person.photo"
+                :alt="`Photograph of ${cv.person.full_name}`"
+                class="size-72"
+            />
             <div class="text-2xl">
                 {{ cv.person.first_name }}
                 <span class="uppercase">{{ cv.person.last_name }}</span>

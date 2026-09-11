@@ -3,6 +3,7 @@
 use App\Models\Person;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
+use Illuminate\Support\Facades\Storage;
 
 test('full_name accessor returns first and last name concatenated', function () {
     $person = Person::factory()->make(['first_name' => 'Ada', 'last_name' => 'Lovelace']);
@@ -51,4 +52,51 @@ test('updating birth_datetime or birth_timezone updates born_at', function () {
 
     expect($person->born_at->toIso8601String())->toBe('2013-05-05T13:16:29+02:00');
     expect($person->born_at->getTimezone()->getName())->toBe('Europe/Paris');
+});
+
+test('updating the photo deletes the former', function () {
+    Storage::fake('public');
+    Storage::disk('public')->put('photos/mnf87n34bndgud7869vhkj4w5.jpg', random_bytes(64));
+    Storage::disk('public')->assertExists('photos/mnf87n34bndgud7869vhkj4w5.jpg');
+
+    $person = Person::factory()->create(['photo' => 'mnf87n34bndgud7869vhkj4w5.jpg']);
+
+    $person->update(['photo' => 'j7f73n459fgd82dnm0cl4n4m.jpg']);
+
+    Storage::disk('public')->assertMissing('photos/mnf87n34bndgud7869vhkj4w5.jpg');
+});
+
+test('updating any attribute except the photo preserves the photo', function () {
+    Storage::fake('public');
+    Storage::disk('public')->put('photos/mnf87n34bndgud7869vhkj4w5.jpg', random_bytes(64));
+    Storage::disk('public')->assertExists('photos/mnf87n34bndgud7869vhkj4w5.jpg');
+
+    $person = Person::factory()->create(['photo' => 'mnf87n34bndgud7869vhkj4w5.jpg']);
+
+    $person->update(['first_name' => 'Toto']);
+
+    Storage::disk('public')->assertExists('photos/mnf87n34bndgud7869vhkj4w5.jpg');
+});
+
+test('deleting a person deletes their photo', function () {
+    Storage::fake('public');
+    Storage::disk('public')->put('photos/JSDF7DFN45DS87FDG.jpg', random_bytes(64));
+    Storage::disk('public')->assertExists('photos/JSDF7DFN45DS87FDG.jpg');
+
+    $person = Person::factory()->create(['photo' => 'JSDF7DFN45DS87FDG.jpg']);
+
+    $person->delete();
+
+    Storage::disk('public')->assertMissing('photos/JSDF7DFN45DS87FDG.jpg');
+});
+
+test('deleting a person without a photo leaves others untouched', function () {
+    Storage::fake('public');
+    Storage::disk('public')->put('photos/NSDFD89DSF6B675DJ12HK3.jpg', random_bytes(64));
+
+    $person = Person::factory()->create(['photo' => null]);
+
+    $person->delete();
+
+    Storage::disk('public')->assertExists('photos/NSDFD89DSF6B675DJ12HK3.jpg');
 });

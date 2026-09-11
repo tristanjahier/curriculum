@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\CurriculumVitae;
+use App\Support\PersonPhoto;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -35,6 +36,7 @@ class CurriculumVitaeResource extends JsonResource
                 'residence' => $this->when($this->show_residence, fn () => $this->person->residence),
                 'phone' => $this->when($this->show_phone, fn () => $this->person->phone),
                 'email' => $this->when($this->show_email, fn () => $this->person->email),
+                'photo' => $this->when($this->show_photo, fn () => PersonPhoto::url($this->person->photo)),
             ],
             'education' => EducationResource::collection(
                 $this->education->sortBy([
